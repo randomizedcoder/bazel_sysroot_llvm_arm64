@@ -2,6 +2,9 @@
 
 This repository contains a statically compiled LLVM toolchain for ARM64 architecture that can be used with Bazel builds. Built using Nix, all components are statically linked, ensuring consistent behavior across different environments. The sysroot also includes coreutils to provide essential Unix tools needed during Bazel builds.
 
+Excluding llvm-exegesis as it's a large benchmarking tool (75MB) not needed for compilation
+See https://llvm.org/docs/CommandGuide/llvm-exegesis.html for details
+
 ## Available Make Targets
 
 - `make help` - Show available targets and their descriptions
