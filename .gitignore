@@ -1,0 +1,9 @@
+# Nix build artifacts
+result
+result-*
+
+# Tarballs
+*.tar.gz
+
+# Nix flake artifacts
+.direnv/
