@@ -15,7 +15,7 @@ pkgs.stdenv.mkDerivation {
 
   buildCommand = ''
     # Create toolchain directory structure
-    mkdir -p $out/{bin,lib,include}
+    mkdir -p $out/{bin,lib}
 
     # Copy LLVM binaries
     echo "Copying LLVM binaries..."
@@ -53,35 +53,31 @@ pkgs.stdenv.mkDerivation {
       find "${libcxx}/lib" -type f -name "*.so*" ! -name "*exegesis*" -exec cp -L {} $out/lib/ \;
     fi
 
-    # Copy LLVM headers
-    echo "Copying LLVM headers..."
-    if [ -d "${llvmToolchain}/include" ]; then
-      cp -r ${llvmToolchain}/include/* $out/include/ || true
-    fi
-    if [ -d "${clang}/include" ]; then
-      cp -r ${clang}/include/* $out/include/ || true
-    fi
-    if [ -d "${lld}/include" ]; then
-      cp -r ${lld}/include/* $out/include/ || true
-    fi
-    if [ -d "${libcxx}/include" ]; then
-      cp -r ${libcxx}/include/* $out/include/ || true
-    fi
-
     # Create toolchain.BUILD file
     cat > $out/toolchain.BUILD << 'EOF'
-cc_library(
-    name = "llvm_toolchain",
-    srcs = glob(["lib/*.so*"]),
-    hdrs = glob(["include/**/*.h"]),
-    includes = ["include"],
-    linkstatic = 1,
-    visibility = ["//visibility:public"],
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "all",
+    srcs = glob(["**"]),
 )
 
 filegroup(
     name = "binaries",
     srcs = glob(["bin/*"]),
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "lib",
+    srcs = glob(["lib/**"]),
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "llvm_toolchain",
+    srcs = glob(["lib/*.so*"]),
+    linkstatic = 1,
     visibility = ["//visibility:public"],
 )
 EOF
