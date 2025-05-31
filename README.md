@@ -5,6 +5,8 @@ This repository contains a statically compiled LLVM toolchain for ARM64 architec
 Excluding llvm-exegesis as it's a large benchmarking tool (75MB) not needed for compilation
 See https://llvm.org/docs/CommandGuide/llvm-exegesis.html for details
 
+clang is symlinked into cc
+
 ## Available Make Targets
 
 - `make help` - Show available targets and their descriptions

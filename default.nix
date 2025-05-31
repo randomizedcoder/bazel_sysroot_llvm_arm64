@@ -53,6 +53,9 @@ pkgs.stdenv.mkDerivation {
       find "${libcxx}/lib" -type f -name "*.so*" ! -name "*exegesis*" -exec cp -L {} $out/lib/ \;
     fi
 
+    # Create cc symlink to clang
+    ln -s $out/bin/clang $out/bin/cc
+
     # Create toolchain.BUILD file
     cat > $out/toolchain.BUILD << 'EOF'
 package(default_visibility = ["//visibility:public"])
