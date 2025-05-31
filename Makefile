@@ -31,6 +31,8 @@ copy: build
 	rm -rf sysroot
 	mkdir -p sysroot
 	rsync -av --delete --exclude 'llvm-exegesis' result/ sysroot/
+	@cd sysroot/bin && ln -sf clang cc
+	@cd sysroot/bin && ln -sf clang++ cc++
 
 push:
 	git add .
