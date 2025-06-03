@@ -82,32 +82,11 @@ pkgs.stdenv.mkDerivation {
       find "${libcxx}/lib" -type f -name "*.so*" ! -name "*exegesis*" -exec cp -L {} $out/lib/ \;
     fi
 
-    # Create toolchain.BUILD file
-    cat > $out/toolchain.BUILD << 'EOF'
-package(default_visibility = ["//visibility:public"])
-
+    cat > $out/BUILD.sysroot.bazel << 'EOF'
 filegroup(
-    name = "all",
+    name = "sysroot",
     srcs = glob(["**"]),
-)
-
-filegroup(
-    name = "binaries",
-    srcs = glob(["bin/*"]),
-    visibility = ["//visibility:public"],
-)
-
-filegroup(
-    name = "lib",
-    srcs = glob(["lib/**"]),
-    visibility = ["//visibility:public"],
-)
-
-cc_library(
-    name = "llvm_toolchain",
-    srcs = glob(["lib/*.so*"]),
-    linkstatic = 1,
-    visibility = ["//visibility:public"],
+    visibility = ["//visibility:public"]
 )
 EOF
   '';
