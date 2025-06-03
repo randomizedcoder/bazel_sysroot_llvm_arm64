@@ -11,12 +11,12 @@ sysroot/
     lld*       # LLVM linker tools
     llvm-*     # Other LLVM tools
     llvm-dwp   # DWARF packaging tool
-  BUILD.sysroot.bazel
+  BUILD.bazel
 ```
 
 ## BUILD File Structure
 
-The `BUILD.sysroot.bazel` file defines the following targets:
+The `BUILD.bazel` file defines the following targets:
 
 ```python
 package(default_visibility = ["//visibility:public"])
