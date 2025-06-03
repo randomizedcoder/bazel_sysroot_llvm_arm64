@@ -1,6 +1,169 @@
-# Bazel LLVM Sysroot for ARM64
+# bazel_sysroot_llvm_arm64
 
-This repository contains a statically compiled LLVM toolchain for ARM64 architecture that can be used with Bazel builds. Built using Nix, all components are statically linked, ensuring consistent behavior across different environments. The sysroot also includes coreutils to provide essential Unix tools needed during Bazel builds.
+This sysroot provides ARM64-specific LLVM tools for Bazel builds. It is part of a larger system of sysroots that work together to provide a complete build environment.
+
+## Purpose
+
+The `bazel_sysroot_llvm_arm64` sysroot is responsible for providing ARM64-specific LLVM tools that are required for building applications on ARM64 architectures. It works in conjunction with:
+
+- `bazel_sysroot_library` - Provides common headers and system libraries
+- `bazel_sysroot_lib_arm64` - Provides ARM64-specific shared libraries
+
+## Directory Structure
+
+```
+sysroot/
+└── bin/           # ARM64-specific LLVM tools
+    ├── clang*     # Clang compiler tools
+    ├── lld*       # LLVM linker tools
+    ├── llvm-*     # Other LLVM tools
+    └── llvm-dwp   # DWARF packaging tool
+```
+
+## BUILD File Targets
+
+The `BUILD.sysroot.bazel` file defines the following targets:
+
+```python
+filegroup(
+    name = "all",
+    srcs = [":sysroot"],
+)
+
+filegroup(
+    name = "sysroot",
+    srcs = glob(["bin/**"]),
+    allow_empty = True,
+)
+
+# Individual tool targets
+filegroup(
+    name = "clang",
+    srcs = glob(["bin/clang*"]),
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "lld",
+    srcs = glob(["bin/lld*"]),
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "llvm-ar",
+    srcs = ["bin/llvm-ar"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "llvm-nm",
+    srcs = ["bin/llvm-nm"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "llvm-objcopy",
+    srcs = ["bin/llvm-objcopy"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "llvm-objdump",
+    srcs = ["bin/llvm-objdump"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "llvm-readelf",
+    srcs = ["bin/llvm-readelf"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "llvm-strip",
+    srcs = ["bin/llvm-strip"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "llvm-dwp",
+    srcs = ["bin/llvm-dwp"],
+    visibility = ["//visibility:public"],
+)
+```
+
+## Included Tools
+
+This sysroot includes ARM64-specific versions of:
+
+- LLVM core tools:
+  - llvm-ar
+  - llvm-nm
+  - llvm-objcopy
+  - llvm-objdump
+  - llvm-readelf
+  - llvm-strip
+  - llvm-dwp
+- Clang compiler tools:
+  - clang
+  - clang++
+  - clang-cpp
+  - clang-format
+  - clang-tidy
+  - clangd
+- LLVM linker tools:
+  - lld
+  - ld.lld
+
+## Usage in Bazel
+
+This sysroot is typically used as part of the LLVM toolchain configuration in your `MODULE.bazel`:
+
+```python
+llvm_toolchain(
+    name = "llvm_arm64",
+    llvm_version = "20.1.2",
+    build_file = "//:llvm.BUILD",
+    sysroot = {
+        "include_prefix": "@bazel_sysroot_library//sysroot",
+        "lib_prefix": "@bazel_sysroot_lib_arm64//sysroot",
+    },
+)
+```
+
+## Building
+
+To build this sysroot:
+
+```bash
+nix-build default.nix
+```
+
+The resulting sysroot will be available in the `result/sysroot` directory.
+
+## Structure
+
+The sysroot follows a specific structure to ensure compatibility with Bazel's LLVM toolchain. For details, see [SYSROOT_STRUCTURE.md](SYSROOT_STRUCTURE.md).
+
+## Building
+
+To build the sysroot:
+
+```bash
+nix build
+```
+
+## Usage
+
+The sysroot can be used in Bazel projects by adding it as a dependency in your `MODULE.bazel` file:
+
+```python
+http_archive(
+    name = "bazel_sysroot_tarball_arm64",
+    urls = ["https://github.com/yourusername/bazel_sysroot_llvm_arm64/archive/refs/heads/main.tar.gz"],
+    strip_prefix = "bazel_sysroot_llvm_arm64-main",
+)
+```
 
 Excluding llvm-exegesis as it's a large benchmarking tool (75MB) not needed for compilation
 See https://llvm.org/docs/CommandGuide/llvm-exegesis.html for details
@@ -36,30 +199,6 @@ Bazel and some build systems expect standard GNU tool names (e.g., `ld`, `objcop
 │   └── bin/         # Binary files (LLVM tools and coreutils)
 └── .gitignore      # Git ignore rules
 ```
-
-## Usage
-
-1. Build the sysroot:
-   ```bash
-   make build
-   ```
-
-2. Copy files to the repository:
-   ```bash
-   make copy
-   ```
-
-3. Create a tarball:
-   ```bash
-   make tarball
-   # or
-   make nix-tarball
-   ```
-
-4. Update everything and push:
-   ```bash
-   make update-all
-   ```
 
 ## Dependencies
 

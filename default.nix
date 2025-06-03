@@ -1,93 +1,114 @@
 { pkgs ? import <nixpkgs> {} }:
 
 let
-  # LLVM toolchain for ARM64
-  llvmToolchain = pkgs.llvmPackages_20.llvm;
-  clang = pkgs.llvmPackages_20.libcxxClang;
-  lld = pkgs.llvmPackages_20.lld;
-  libcxx = pkgs.llvmPackages_20.libcxx;
-  # List of GNU tool symlinks to LLVM equivalents
-  symlinks = [
-    { link = "ld"; target = "ld.lld"; }
-    { link = "objcopy"; target = "llvm-objcopy"; }
-    { link = "strip"; target = "llvm-strip"; }
-    { link = "ar"; target = "llvm-ar"; }
-    { link = "nm"; target = "llvm-nm"; }
-    { link = "ranlib"; target = "llvm-ranlib"; }
-    { link = "size"; target = "llvm-size"; }
-    { link = "strings"; target = "llvm-strings"; }
-    { link = "addr2line"; target = "llvm-addr2line"; }
-    { link = "c++filt"; target = "llvm-cxxfilt"; }
-    { link = "readelf"; target = "llvm-readelf"; }
-    { link = "elfedit"; target = "llvm-elfedit"; }
-    { link = "as"; target = "llvm-as"; }
-    { link = "cc"; target = "clang"; }
-    { link = "cc++"; target = "clang++"; }
+  # ARM64-specific LLVM tools
+  arm64Tools = with pkgs; [
+    llvmPackages_20.llvm
+    llvmPackages_20.clang
+    llvmPackages_20.lld
+    llvmPackages_20.compiler-rt
+    llvmPackages_20.libcxx
+    llvmPackages_20.libcxxClang
+    llvmPackages_20.bintools
+    llvmPackages_20.clang-tools
   ];
-in
-pkgs.stdenv.mkDerivation {
-  name = "bazel-llvm-arm64";
-  version = "1.0.0";
 
-  buildInputs = [ llvmToolchain clang lld libcxx pkgs.coreutils ];
+  build_file_content = ''
+package(default_visibility = ["//visibility:public"])
 
-  buildCommand = ''
-    # Create toolchain directory structure
-    mkdir -p $out/{bin,lib}
+# Main filegroup that includes everything
+filegroup(
+    name = "all",
+    srcs = [":sysroot"],
+)
 
-    # Copy LLVM binaries
-    echo "Copying LLVM binaries..."
-    if [ -d "${llvmToolchain}/bin" ]; then
-      find "${llvmToolchain}/bin" -type f ! -name "llvm-exegesis" -exec cp -L {} $out/bin/ \;
-    fi
-    if [ -d "${clang}/bin" ]; then
-      find "${clang}/bin" -type f ! -name "llvm-exegesis" -exec cp -L {} $out/bin/ \;
-    fi
-    if [ -d "${lld}/bin" ]; then
-      find "${lld}/bin" -type f ! -name "llvm-exegesis" -exec cp -L {} $out/bin/ \;
-    fi
-
-    # Copy coreutils binaries
-    echo "Copying coreutils binaries..."
-    if [ -d "${pkgs.coreutils}/bin" ]; then
-      cp -r ${pkgs.coreutils}/bin/* $out/bin/ || true
-    fi
-
-    # Create symlinks for GNU tool names to LLVM equivalents
-    # This is required because Bazel and some build systems expect standard GNU tool names (e.g., 'ld', 'objcopy', 'strip'),
-    # but the sysroot only provides LLVM equivalents (e.g., 'ld.lld', 'llvm-objcopy', 'llvm-strip').
-    # By creating these symlinks, we ensure compatibility with Bazel's toolchain expectations.
-    cd $out/bin
-    for symlink in ${builtins.toString (map (s: ''${s.link}:${s.target}'') symlinks)}; do
-      link="$(echo $symlink | cut -d: -f1)"
-      target="$(echo $symlink | cut -d: -f2)"
-      if [ -e "$target" ]; then
-        ln -sf $target $link
-      fi
-    done
-    cd -
-
-    # Copy LLVM libraries
-    echo "Copying LLVM libraries..."
-    if [ -d "${llvmToolchain}/lib" ]; then
-      find "${llvmToolchain}/lib" -type f -name "*.so*" ! -name "*exegesis*" -exec cp -L {} $out/lib/ \;
-    fi
-    if [ -d "${clang}/lib" ]; then
-      find "${clang}/lib" -type f -name "*.so*" ! -name "*exegesis*" -exec cp -L {} $out/lib/ \;
-    fi
-    if [ -d "${lld}/lib" ]; then
-      find "${lld}/lib" -type f -name "*.so*" ! -name "*exegesis*" -exec cp -L {} $out/lib/ \;
-    fi
-    if [ -d "${libcxx}/lib" ]; then
-      find "${libcxx}/lib" -type f -name "*.so*" ! -name "*exegesis*" -exec cp -L {} $out/lib/ \;
-    fi
-
-    cat > $out/BUILD.sysroot.bazel << 'EOF'
+# Sysroot filegroup for bin directory
 filegroup(
     name = "sysroot",
-    srcs = glob(["**"]),
-    visibility = ["//visibility:public"]
+    srcs = glob(["bin/**"]),
+    allow_empty = True,
 )
+
+# Individual tool targets
+filegroup(
+    name = "clang",
+    srcs = glob(["bin/clang*"]),
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "lld",
+    srcs = glob(["bin/lld*"]),
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "llvm-ar",
+    srcs = ["bin/llvm-ar"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "llvm-nm",
+    srcs = ["bin/llvm-nm"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "llvm-objcopy",
+    srcs = ["bin/llvm-objcopy"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "llvm-objdump",
+    srcs = ["bin/llvm-objdump"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "llvm-readelf",
+    srcs = ["bin/llvm-readelf"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "llvm-strip",
+    srcs = ["bin/llvm-strip"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "llvm-dwp",
+    srcs = ["bin/llvm-dwp"],
+    visibility = ["//visibility:public"],
+)
+'';
+in
+pkgs.stdenv.mkDerivation {
+  name = "bazel-sysroot-llvm-arm64";
+  version = "1.0.0";
+
+  buildInputs = arm64Tools;
+
+  buildCommand = ''
+    # Create sysroot directory structure
+    mkdir -p $out/sysroot/bin
+
+    # Copy LLVM tools
+    echo "Copying LLVM tools..."
+    if [ -d "${pkgs.llvmPackages_20.llvm}/bin" ]; then cp -r ${pkgs.llvmPackages_20.llvm}/bin/* $out/sysroot/bin/ || true; fi
+    if [ -d "${pkgs.llvmPackages_20.clang}/bin" ]; then cp -r ${pkgs.llvmPackages_20.clang}/bin/* $out/sysroot/bin/ || true; fi
+    if [ -d "${pkgs.llvmPackages_20.lld}/bin" ]; then cp -r ${pkgs.llvmPackages_20.lld}/bin/* $out/sysroot/bin/ || true; fi
+    if [ -d "${pkgs.llvmPackages_20.compiler-rt}/bin" ]; then cp -r ${pkgs.llvmPackages_20.compiler-rt}/bin/* $out/sysroot/bin/ || true; fi
+    if [ -d "${pkgs.llvmPackages_20.libcxx}/bin" ]; then cp -r ${pkgs.llvmPackages_20.libcxx}/bin/* $out/sysroot/bin/ || true; fi
+    if [ -d "${pkgs.llvmPackages_20.libcxxClang}/bin" ]; then cp -r ${pkgs.llvmPackages_20.libcxxClang}/bin/* $out/sysroot/bin/ || true; fi
+    if [ -d "${pkgs.llvmPackages_20.bintools}/bin" ]; then cp -r ${pkgs.llvmPackages_20.bintools}/bin/* $out/sysroot/bin/ || true; fi
+    if [ -d "${pkgs.llvmPackages_20.clang-tools}/bin" ]; then cp -r ${pkgs.llvmPackages_20.clang-tools}/bin/* $out/sysroot/bin/ || true; fi
+
+    # Create BUILD.sysroot.bazel file
+    cat > $out/sysroot/BUILD.sysroot.bazel << 'EOF'
+${build_file_content}
 EOF
   '';
 }

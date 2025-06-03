@@ -30,7 +30,7 @@ tarball: build
 copy: build
 	rm -rf sysroot
 	mkdir -p sysroot
-	rsync -av --delete --exclude 'llvm-exegesis' result/ sysroot/
+	rsync -av --delete --exclude 'llvm-exegesis' result/sysroot/ sysroot/
 	# symlink via nix!
 	#@cd sysroot/bin && ln -sf clang cc
 	#@cd sysroot/bin && ln -sf clang++ cc++

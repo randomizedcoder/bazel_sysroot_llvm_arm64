@@ -15,9 +15,9 @@ if [[ -n "/nix/store/87fck6hm17chxjq7badb11mq036zbyv9-coreutils-9.7" && -n "/nix
     PATH="/nix/store/87fck6hm17chxjq7badb11mq036zbyv9-coreutils-9.7/bin:/nix/store/gqmr3gixlddz3667ba1iyqck3c0dkpvd-gnugrep-3.11/bin"
 fi
 
-source /nix/store/dv6nnyniq4bn33h35bal93i48f2mn71p-clang-wrapper-20.1.5/nix-support/utils.bash
+source /nix/store/nlllhxn7d8jjczdcya4sspq94sjqyhkj-clang-wrapper-20.1.5/nix-support/utils.bash
 
-source /nix/store/dv6nnyniq4bn33h35bal93i48f2mn71p-clang-wrapper-20.1.5/nix-support/darwin-sdk-setup.bash
+source /nix/store/nlllhxn7d8jjczdcya4sspq94sjqyhkj-clang-wrapper-20.1.5/nix-support/darwin-sdk-setup.bash
 
 
 # Parse command line options and set several variables.
@@ -122,7 +122,7 @@ fi
 
 # Put this one second so libc ldflags take priority.
 if [ -z "${NIX_CC_WRAPPER_FLAGS_SET_x86_64_unknown_linux_gnu:-}" ]; then
-    source /nix/store/dv6nnyniq4bn33h35bal93i48f2mn71p-clang-wrapper-20.1.5/nix-support/add-flags.sh
+    source /nix/store/nlllhxn7d8jjczdcya4sspq94sjqyhkj-clang-wrapper-20.1.5/nix-support/add-flags.sh
 fi
 
 # Clear march/mtune=native -- they bring impurity.
@@ -174,7 +174,7 @@ if [[ "$isCxx" = 1 ]]; then
     fi
 fi
 
-source /nix/store/dv6nnyniq4bn33h35bal93i48f2mn71p-clang-wrapper-20.1.5/nix-support/add-hardening.sh
+source /nix/store/nlllhxn7d8jjczdcya4sspq94sjqyhkj-clang-wrapper-20.1.5/nix-support/add-hardening.sh
 
 # Add the flags for the C compiler proper.
 extraAfter=(${hardeningCFlagsAfter[@]+"${hardeningCFlagsAfter[@]}"} $NIX_CFLAGS_COMPILE_x86_64_unknown_linux_gnu)
@@ -205,8 +205,8 @@ if [ "$dontLink" != 1 ]; then
     export NIX_LINK_TYPE_x86_64_unknown_linux_gnu=$linkType
 fi
 
-if [[ -e /nix/store/dv6nnyniq4bn33h35bal93i48f2mn71p-clang-wrapper-20.1.5/nix-support/add-local-cc-cflags-before.sh ]]; then
-    source /nix/store/dv6nnyniq4bn33h35bal93i48f2mn71p-clang-wrapper-20.1.5/nix-support/add-local-cc-cflags-before.sh
+if [[ -e /nix/store/nlllhxn7d8jjczdcya4sspq94sjqyhkj-clang-wrapper-20.1.5/nix-support/add-local-cc-cflags-before.sh ]]; then
+    source /nix/store/nlllhxn7d8jjczdcya4sspq94sjqyhkj-clang-wrapper-20.1.5/nix-support/add-local-cc-cflags-before.sh
 fi
 
 # As a very special hack, if the arguments are just `-v', then don't
@@ -233,9 +233,9 @@ if [[ "${#positionalArgs[@]}" -gt 0 ]]; then
 fi
 
 # if a cc-wrapper-hook exists, run it.
-if [[ -e /nix/store/dv6nnyniq4bn33h35bal93i48f2mn71p-clang-wrapper-20.1.5/nix-support/cc-wrapper-hook ]]; then
+if [[ -e /nix/store/nlllhxn7d8jjczdcya4sspq94sjqyhkj-clang-wrapper-20.1.5/nix-support/cc-wrapper-hook ]]; then
     compiler=/nix/store/kfav6wkyglcpgrajyfq0zdgfqlm3cwky-clang-20.1.5/bin/clang
-    source /nix/store/dv6nnyniq4bn33h35bal93i48f2mn71p-clang-wrapper-20.1.5/nix-support/cc-wrapper-hook
+    source /nix/store/nlllhxn7d8jjczdcya4sspq94sjqyhkj-clang-wrapper-20.1.5/nix-support/cc-wrapper-hook
 fi
 
 # Optionally print debug info.
