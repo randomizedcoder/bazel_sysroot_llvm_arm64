@@ -7,6 +7,10 @@ See https://llvm.org/docs/CommandGuide/llvm-exegesis.html for details
 
 clang is symlinked into cc
 
+## GNU tool symlinks
+
+Bazel and some build systems expect standard GNU tool names (e.g., `ld`, `objcopy`, `strip`), but this sysroot only provides LLVM equivalents (e.g., `ld.lld`, `llvm-objcopy`, `llvm-strip`). We create symlinks from the GNU tool names to the LLVM equivalents to ensure compatibility with Bazel's toolchain expectations.
+
 ## Available Make Targets
 
 - `make help` - Show available targets and their descriptions
