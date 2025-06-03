@@ -106,8 +106,7 @@ pkgs.stdenv.mkDerivation {
     if [ -d "${pkgs.llvmPackages_20.bintools}/bin" ]; then cp -r ${pkgs.llvmPackages_20.bintools}/bin/* $out/sysroot/bin/ || true; fi
     if [ -d "${pkgs.llvmPackages_20.clang-tools}/bin" ]; then cp -r ${pkgs.llvmPackages_20.clang-tools}/bin/* $out/sysroot/bin/ || true; fi
 
-    # Create BUILD.sysroot.bazel file
-    cat > $out/sysroot/BUILD.sysroot.bazel << 'EOF'
+    cat > $out/sysroot/BUILD.bazel << 'EOF'
 ${build_file_content}
 EOF
   '';
