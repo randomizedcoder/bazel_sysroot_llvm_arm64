@@ -1,0 +1,27 @@
+#!/nix/store/xy4jjgw87sbgwylm5kn047d9gkbhsr9x-bash-5.2p37/bin/sh
+
+buildcpath() {
+  local path after
+  while (( $# )); do
+    case $1 in
+        -isystem)
+            shift
+            path=$path${path:+':'}$1
+            ;;
+        -idirafter)
+            shift
+            after=$after${after:+':'}$1
+            ;;
+    esac
+    shift
+  done
+  echo $path${after:+':'}$after
+}
+
+export CPATH=${CPATH}${CPATH:+':'}$(buildcpath ${NIX_CFLAGS_COMPILE} \
+                                               $(</nix/store/nlllhxn7d8jjczdcya4sspq94sjqyhkj-clang-wrapper-20.1.5/nix-support/libc-cflags)):/nix/store/nlllhxn7d8jjczdcya4sspq94sjqyhkj-clang-wrapper-20.1.5/resource-root/include
+export CPLUS_INCLUDE_PATH=${CPLUS_INCLUDE_PATH}${CPLUS_INCLUDE_PATH:+':'}$(buildcpath ${NIX_CFLAGS_COMPILE} \
+                                                                                      $(</nix/store/nlllhxn7d8jjczdcya4sspq94sjqyhkj-clang-wrapper-20.1.5/nix-support/libcxx-cxxflags) \
+                                                                                      $(</nix/store/nlllhxn7d8jjczdcya4sspq94sjqyhkj-clang-wrapper-20.1.5/nix-support/libc-cflags)):/nix/store/nlllhxn7d8jjczdcya4sspq94sjqyhkj-clang-wrapper-20.1.5/resource-root/include
+
+exec -a "$0" /nix/store/kfav6wkyglcpgrajyfq0zdgfqlm3cwky-clang-20.1.5/bin/$(basename $0) "$@"
