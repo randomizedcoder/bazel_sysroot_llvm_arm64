@@ -1,16 +1,10 @@
 package(default_visibility = ["//visibility:public"])
 
-# Main filegroup that includes everything
-filegroup(
-    name = "all",
-    srcs = [":sysroot"],
-)
-
-# Sysroot filegroup for bin directory
+# Main sysroot filegroup
 filegroup(
     name = "sysroot",
     srcs = glob(["bin/**"]),
-    allow_empty = True,
+    visibility = ["//visibility:public"],
 )
 
 # Individual tool targets
@@ -29,6 +23,12 @@ filegroup(
 filegroup(
     name = "llvm-ar",
     srcs = ["bin/llvm-ar"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "llvm-as",
+    srcs = ["bin/llvm-as"],
     visibility = ["//visibility:public"],
 )
 
@@ -65,6 +65,61 @@ filegroup(
 filegroup(
     name = "llvm-dwp",
     srcs = ["bin/llvm-dwp"],
+    visibility = ["//visibility:public"],
+)
+
+# Tool aliases
+filegroup(
+    name = "gcc",
+    srcs = [":clang"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "cpp",
+    srcs = [":clang-cpp"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "ar",
+    srcs = [":llvm-ar"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "ld",
+    srcs = [":lld"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "nm",
+    srcs = [":llvm-nm"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "objcopy",
+    srcs = [":llvm-objcopy"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "objdump",
+    srcs = [":llvm-objdump"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "strip",
+    srcs = [":llvm-strip"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "dwp",
+    srcs = [":llvm-dwp"],
     visibility = ["//visibility:public"],
 )
 

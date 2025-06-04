@@ -16,17 +16,11 @@ let
   build_file_content = ''
 package(default_visibility = ["//visibility:public"])
 
-# Main filegroup that includes everything
-filegroup(
-    name = "all",
-    srcs = [":sysroot"],
-)
-
-# Sysroot filegroup for bin directory
+# Main sysroot filegroup
 filegroup(
     name = "sysroot",
     srcs = glob(["bin/**"]),
-    allow_empty = True,
+    visibility = ["//visibility:public"],
 )
 
 # Individual tool targets
@@ -45,6 +39,12 @@ filegroup(
 filegroup(
     name = "llvm-ar",
     srcs = ["bin/llvm-ar"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "llvm-as",
+    srcs = ["bin/llvm-as"],
     visibility = ["//visibility:public"],
 )
 
@@ -83,6 +83,61 @@ filegroup(
     srcs = ["bin/llvm-dwp"],
     visibility = ["//visibility:public"],
 )
+
+# Tool aliases
+filegroup(
+    name = "gcc",
+    srcs = [":clang"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "cpp",
+    srcs = [":clang-cpp"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "ar",
+    srcs = [":llvm-ar"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "ld",
+    srcs = [":lld"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "nm",
+    srcs = [":llvm-nm"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "objcopy",
+    srcs = [":llvm-objcopy"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "objdump",
+    srcs = [":llvm-objdump"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "strip",
+    srcs = [":llvm-strip"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "dwp",
+    srcs = [":llvm-dwp"],
+    visibility = ["//visibility:public"],
+)
 '';
 in
 pkgs.stdenv.mkDerivation {
@@ -105,6 +160,19 @@ pkgs.stdenv.mkDerivation {
     if [ -d "${pkgs.llvmPackages_20.libcxxClang}/bin" ]; then cp -r ${pkgs.llvmPackages_20.libcxxClang}/bin/* $out/sysroot/bin/ || true; fi
     if [ -d "${pkgs.llvmPackages_20.bintools}/bin" ]; then cp -r ${pkgs.llvmPackages_20.bintools}/bin/* $out/sysroot/bin/ || true; fi
     if [ -d "${pkgs.llvmPackages_20.clang-tools}/bin" ]; then cp -r ${pkgs.llvmPackages_20.clang-tools}/bin/* $out/sysroot/bin/ || true; fi
+
+    # Create GNU tool symlinks
+    cd $out/sysroot/bin
+    ln -sf clang gcc
+    ln -sf clang-cpp cpp
+    ln -sf llvm-ar ar
+    ln -sf ld.lld ld
+    ln -sf llvm-nm nm
+    ln -sf llvm-objcopy objcopy
+    ln -sf llvm-objdump objdump
+    ln -sf llvm-strip strip
+    ln -sf llvm-dwp dwp
+    ln -sf llvm-c++filt c++filt
 
     cat > $out/sysroot/BUILD.bazel << 'EOF'
 ${build_file_content}
