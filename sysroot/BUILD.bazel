@@ -3,34 +3,34 @@ package(default_visibility = ["//visibility:public"])
 # Main sysroot filegroup
 filegroup(
     name = "sysroot",
-    srcs = glob(["bin/**"]) + glob(["include/**"]) + glob(["lib/**"]),
+    srcs = glob(["bin/**"], allow_empty = True) + glob(["include/**"], allow_empty = True) + glob(["lib/**"], allow_empty = True),
     visibility = ["//visibility:public"],
 )
 
 # Include directory
 filegroup(
     name = "include",
-    srcs = glob(["include/**"]),
+    srcs = glob(["include/**"], allow_empty = True),
     visibility = ["//visibility:public"],
 )
 
 # Lib directory
 filegroup(
     name = "lib",
-    srcs = glob(["lib/**"]),
+    srcs = glob(["lib/**"], allow_empty = True),
     visibility = ["//visibility:public"],
 )
 
 # Individual tool targets
 filegroup(
     name = "clang",
-    srcs = glob(["bin/clang*"]),
+    srcs = glob(["bin/clang*"], allow_empty = True),
     visibility = ["//visibility:public"],
 )
 
 filegroup(
     name = "lld",
-    srcs = glob(["bin/lld*"]),
+    srcs = glob(["bin/lld*", "bin/ld.lld"], allow_empty = True),
     visibility = ["//visibility:public"],
 )
 
@@ -91,7 +91,7 @@ filegroup(
 
 filegroup(
     name = "cpp",
-    srcs = [":clang-cpp"],
+    srcs = [":clang"],
     visibility = ["//visibility:public"],
 )
 
