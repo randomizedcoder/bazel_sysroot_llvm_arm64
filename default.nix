@@ -23,6 +23,13 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
+# Bin directory
+filegroup(
+    name = "bin",
+    srcs = glob(["bin/**"], allow_empty = True),
+    visibility = ["//visibility:public"],
+)
+
 # Include directory
 filegroup(
     name = "include",
@@ -98,6 +105,24 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
+filegroup(
+    name = "llvm-profdata",
+    srcs = ["bin/llvm-profdata"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "llvm-cov",
+    srcs = ["bin/llvm-cov"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "llvm-c++filt",
+    srcs = ["bin/llvm-c++filt"],
+    visibility = ["//visibility:public"],
+)
+
 # Tool aliases
 filegroup(
     name = "gcc",
@@ -156,6 +181,18 @@ filegroup(
 filegroup(
     name = "dwp",
     srcs = [":llvm-dwp"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "c++filt",
+    srcs = [":llvm-c++filt"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "gcov",
+    srcs = [":llvm-cov"],
     visibility = ["//visibility:public"],
 )
 '';
