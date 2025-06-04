@@ -3,7 +3,21 @@ package(default_visibility = ["//visibility:public"])
 # Main sysroot filegroup
 filegroup(
     name = "sysroot",
-    srcs = glob(["bin/**"]),
+    srcs = glob(["bin/**"]) + glob(["include/**"]) + glob(["lib/**"]),
+    visibility = ["//visibility:public"],
+)
+
+# Include directory
+filegroup(
+    name = "include",
+    srcs = glob(["include/**"]),
+    visibility = ["//visibility:public"],
+)
+
+# Lib directory
+filegroup(
+    name = "lib",
+    srcs = glob(["lib/**"]),
     visibility = ["//visibility:public"],
 )
 
