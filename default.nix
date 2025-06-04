@@ -118,6 +118,12 @@ filegroup(
 )
 
 filegroup(
+    name = "as",
+    srcs = [":llvm-as"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
     name = "ld",
     srcs = [":lld"],
     visibility = ["//visibility:public"],
@@ -194,8 +200,12 @@ pkgs.stdenv.mkDerivation {
     # Create GNU tool symlinks
     cd $out/sysroot/bin
     ln -sf clang gcc
+    ln -sf clang cc
+    ln -sf clang++ c++
     ln -sf clang-cpp cpp
     ln -sf llvm-ar ar
+    ln -sf llvm-ar ranlib
+    ln -sf llvm-as as
     ln -sf ld.lld ld
     ln -sf llvm-nm nm
     ln -sf llvm-objcopy objcopy
@@ -203,6 +213,7 @@ pkgs.stdenv.mkDerivation {
     ln -sf llvm-strip strip
     ln -sf llvm-dwp dwp
     ln -sf llvm-c++filt c++filt
+    ln -sf llvm-cov gcov
 
     cat > $out/sysroot/BUILD.bazel << 'EOF'
 ${build_file_content}

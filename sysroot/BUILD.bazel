@@ -102,6 +102,12 @@ filegroup(
 )
 
 filegroup(
+    name = "as",
+    srcs = [":llvm-as"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
     name = "ld",
     srcs = [":lld"],
     visibility = ["//visibility:public"],

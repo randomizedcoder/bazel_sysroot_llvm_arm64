@@ -15,6 +15,7 @@ This sysroot must provide all tools required by both `rules_cc` and `toolchain_l
 
 ### Core Tools (from rules_cc)
 - `ar` (aliased from `llvm-ar`)
+- `as` (aliased from `llvm-as`)
 - `ld` (aliased from `ld.lld`)
 - `llvm-cov`
 - `llvm-profdata`
@@ -29,19 +30,19 @@ This sysroot must provide all tools required by both `rules_cc` and `toolchain_l
 - `c++filt` (aliased from `llvm-c++filt`)
 
 ### Additional Tools (from toolchain_llvm)
-- `clang-cpp`
-- `clang-format` (required since toolchain_llvm 1.4.0)
-- `clang-tidy` (required since toolchain_llvm 1.4.0)
-- `clangd` (required since toolchain_llvm 1.4.0)
-- `ld.lld`
-- `llvm-ar`
-- `llvm-dwp`
-- `llvm-profdata`
-- `llvm-cov`
-- `llvm-nm`
-- `llvm-objcopy`
-- `llvm-objdump`
-- `llvm-strip`
+- `clang-cpp` (from clang package)
+- `clang-format` (from clang-tools package)
+- `clang-tidy` (from clang-tools package)
+- `clangd` (from clang-tools package)
+- `ld.lld` (from lld package)
+- `llvm-ar` (from llvm package)
+- `llvm-dwp` (from llvm package)
+- `llvm-profdata` (from llvm package)
+- `llvm-cov` (from llvm package)
+- `llvm-nm` (from llvm package)
+- `llvm-objcopy` (from llvm package)
+- `llvm-objdump` (from llvm package)
+- `llvm-strip` (from llvm package)
 
 ## Tool Aliasing Strategy
 
@@ -50,8 +51,12 @@ This sysroot implements a dual aliasing strategy to ensure compatibility with bo
 1. **Filesystem-level aliases**: During the build process, GNU tool symlinks are created in the `bin/` directory:
    ```bash
    ln -sf clang gcc
+   ln -sf clang cc
+   ln -sf clang++ c++
    ln -sf clang-cpp cpp
    ln -sf llvm-ar ar
+   ln -sf llvm-ar ranlib
+   ln -sf llvm-as as
    ln -sf ld.lld ld
    ln -sf llvm-nm nm
    ln -sf llvm-objcopy objcopy
@@ -59,6 +64,7 @@ This sysroot implements a dual aliasing strategy to ensure compatibility with bo
    ln -sf llvm-strip strip
    ln -sf llvm-dwp dwp
    ln -sf llvm-c++filt c++filt
+   ln -sf llvm-cov gcov
    ```
 
 2. **Bazel-level aliases**: The `BUILD.bazel` file defines filegroups that map GNU tool names to their LLVM equivalents:
@@ -86,7 +92,7 @@ sysroot/
 
 ## BUILD File Targets
 
-The `BUILD.sysroot.bazel` file defines the following targets:
+The `BUILD.bazel` file defines the following targets:
 
 ```python
 package(default_visibility = ["//visibility:public"])
@@ -168,13 +174,19 @@ filegroup(
 
 filegroup(
     name = "cpp",
-    srcs = [":clang-cpp"],
+    srcs = [":clang"],
     visibility = ["//visibility:public"],
 )
 
 filegroup(
     name = "ar",
     srcs = [":llvm-ar"],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "as",
+    srcs = [":llvm-as"],
     visibility = ["//visibility:public"],
 )
 
@@ -290,6 +302,9 @@ http_archive(
 - GNU tool symlinks are created to ensure compatibility with Bazel's expectations
 - Excluding llvm-exegesis as it's a large benchmarking tool (75MB) not needed for compilation
   See https://llvm.org/docs/CommandGuide/llvm-exegesis.html for details
+- The `compiler-rt` package is included to provide runtime libraries for LLVM sanitizers (ASan, MSan, etc.)
+  and other runtime features. These are useful for debug builds and development, but not typically
+  needed for production builds. See https://compiler-rt.llvm.org/ for more details.
 
 ## Available Make Targets
 
