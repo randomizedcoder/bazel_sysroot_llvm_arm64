@@ -19,7 +19,21 @@ package(default_visibility = ["//visibility:public"])
 # Main sysroot filegroup
 filegroup(
     name = "sysroot",
-    srcs = glob(["bin/**"]),
+    srcs = glob(["bin/**"]) + glob(["include/**"]) + glob(["lib/**"]),
+    visibility = ["//visibility:public"],
+)
+
+# Include directory
+filegroup(
+    name = "include",
+    srcs = glob(["include/**"]),
+    visibility = ["//visibility:public"],
+)
+
+# Lib directory
+filegroup(
+    name = "lib",
+    srcs = glob(["lib/**"]),
     visibility = ["//visibility:public"],
 )
 
@@ -149,6 +163,8 @@ pkgs.stdenv.mkDerivation {
   buildCommand = ''
     # Create sysroot directory structure
     mkdir -p $out/sysroot/bin
+    mkdir -p $out/sysroot/include
+    mkdir -p $out/sysroot/lib
 
     # Copy LLVM tools
     echo "Copying LLVM tools..."
@@ -160,6 +176,20 @@ pkgs.stdenv.mkDerivation {
     if [ -d "${pkgs.llvmPackages_20.libcxxClang}/bin" ]; then cp -r ${pkgs.llvmPackages_20.libcxxClang}/bin/* $out/sysroot/bin/ || true; fi
     if [ -d "${pkgs.llvmPackages_20.bintools}/bin" ]; then cp -r ${pkgs.llvmPackages_20.bintools}/bin/* $out/sysroot/bin/ || true; fi
     if [ -d "${pkgs.llvmPackages_20.clang-tools}/bin" ]; then cp -r ${pkgs.llvmPackages_20.clang-tools}/bin/* $out/sysroot/bin/ || true; fi
+
+    # Copy include files
+    echo "Copying include files..."
+    if [ -d "${pkgs.llvmPackages_20.llvm}/include" ]; then cp -r ${pkgs.llvmPackages_20.llvm}/include/* $out/sysroot/include/ || true; fi
+    if [ -d "${pkgs.llvmPackages_20.clang}/include" ]; then cp -r ${pkgs.llvmPackages_20.clang}/include/* $out/sysroot/include/ || true; fi
+    if [ -d "${pkgs.llvmPackages_20.libcxx}/include" ]; then cp -r ${pkgs.llvmPackages_20.libcxx}/include/* $out/sysroot/include/ || true; fi
+
+    # Copy library files
+    echo "Copying library files..."
+    if [ -d "${pkgs.llvmPackages_20.llvm}/lib" ]; then cp -r ${pkgs.llvmPackages_20.llvm}/lib/* $out/sysroot/lib/ || true; fi
+    if [ -d "${pkgs.llvmPackages_20.clang}/lib" ]; then cp -r ${pkgs.llvmPackages_20.clang}/lib/* $out/sysroot/lib/ || true; fi
+    if [ -d "${pkgs.llvmPackages_20.lld}/lib" ]; then cp -r ${pkgs.llvmPackages_20.lld}/lib/* $out/sysroot/lib/ || true; fi
+    if [ -d "${pkgs.llvmPackages_20.compiler-rt}/lib" ]; then cp -r ${pkgs.llvmPackages_20.compiler-rt}/lib/* $out/sysroot/lib/ || true; fi
+    if [ -d "${pkgs.llvmPackages_20.libcxx}/lib" ]; then cp -r ${pkgs.llvmPackages_20.libcxx}/lib/* $out/sysroot/lib/ || true; fi
 
     # Create GNU tool symlinks
     cd $out/sysroot/bin
